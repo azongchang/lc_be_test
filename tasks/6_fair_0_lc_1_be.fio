@@ -1,0 +1,14 @@
+[global]
+ioengine=libaio
+direct=1
+rw=randread
+size=10G
+time_based=1
+runtime=10s
+cpus_allowed=0
+cpus_allowed_policy=shared
+[BE0_randread_libaio_64k_32_1]
+filename=/mnt/nvme/task0/BE0_randread_libaio_64k_32_1
+bs=64k
+iodepth=32
+numjobs=1

@@ -1,0 +1,74 @@
+#!/bin/bash
+set -x
+PREFIX=""
+TASK_TYPE=""
+INDEX=""
+BS=""
+IO_DEPTH=""
+
+DB_HOME=/root/rocksdb-9.7.4
+TEST_DIR=/mnt/nvme/
+RSLT_DIR=results
+
+NICE=-10
+BENCH=randread
+ENGINE=libaio
+RUN_TIME=10
+CPUS=0
+THREADS=1
+
+# Loop through all arguments
+for arg in "$@"; do
+	# Check if the argument contains '='
+    	if [[ "$arg" == *=* ]]; then
+        	# Split the key and value using '=' as the delimiter
+        	key="${arg%%=*}"
+        	value="${arg#*=}"
+		declare "$key=$value"
+    	fi
+done
+
+TEST_DIR+=task$INDEX
+RSLT_DIR+=/$PREFIX
+
+# Default parameters for LC tasks.
+if [[ "$TASK_TYPE" = "LC" ]]; then
+	BS=${BS:=4k}
+	IO_DEPTH=${IO_DEPTH:=1}
+else
+	BS=${BS:=64k}
+	IO_DEPTH=${IO_DEPTH:=32}
+fi
+
+
+CLOCK=$(date +"%H:%M:%S")
+echo "[$CLOCK] $TASK_TYPE task${INDEX}: bench=${BENCH}, io_engine=${ENGINE}, bs=${BS}, io_depth=${IO_DEPTH}, cpus=${CPUS}, number_of_threads=${THREADS}, run_time=${RUN_TIME}s."
+FILE_NAME=${TASK_TYPE}${INDEX}_${BENCH}_${ENGINE}_${BS}_${IO_DEPTH}_${THREADS}
+#perf stat -C $CPUS -e task-clock,cpu-clock,cycles -o ${RSLT_DIR}/${FILE_NAME}_perf \
+#tastset -c $CPUS \
+fio --filename=${TEST_DIR}/${FILE_NAME} \
+	--name=${FILE_NAME} \
+	--ioengine=$ENGINE \
+	--direct=1 \
+	--rw=$BENCH \
+	--nice=$NICE \
+	--gtod_reduce=0 \
+	--cpus_allowed_policy=shared \
+	--size=10G \
+	--bs=$BS \
+	--time_based \
+	--runtime=${RUN_TIME}s \
+	--iodepth=$IO_DEPTH \
+	--cpus_allowed=$CPUS \
+	--numjobs=$THREADS \
+	--prioclass=0 \
+	--group_reporting > ${RSLT_DIR}/${FILE_NAME}_fio &
+
+PID=$!
+taskset -c $CPUS -p $PID &
+perf stat -C $CPUS -e task-clock,cpu-clock,cycles -o ${RSLT_DIR}/${FILE_NAME}_perf -p $PID &
+pidstat -p $PID -uwh 1 > ${RSLT_DIR}/${FILE_NAME}_pstat &
+
+wait
+CLOCK=$(date +"%H:%M:%S")
+echo "[$CLOCK] $TASK_TYPE task${INDEX} finished."
