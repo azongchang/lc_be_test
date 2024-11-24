@@ -8,8 +8,8 @@ IO_DEPTH=""
 
 DB_HOME=/root/rocksdb-9.7.4
 TEST_DIR=/mnt/nvme/
-RSLT_DIR=results
-TASK_DIR=tasks
+RSLT_DIR=../results
+TASK_DIR=../tasks
 
 NICE=-10
 BENCH=randread
@@ -49,6 +49,7 @@ echo "filename=${TEST_DIR}/${FILE_NAME}" >> $TASK_FILE
 echo "bs=${BS}" >> $TASK_FILE
 echo "iodepth=${IO_DEPTH}" >> $TASK_FILE
 echo "numjobs=${THREADS}" >> $TASK_FILE
+echo "nice=${NICE}" >> $TASK_FILE
 
 CLOCK=$(date +"%H:%M:%S")
-echo "[$CLOCK] Created $TASK_TYPE task${INDEX}: bench=${BENCH}, io_engine=${ENGINE}, bs=${BS}, io_depth=${IO_DEPTH}, cpus=${CPUS}, number_of_threads=${THREADS}, run_time=${RUN_TIME}s."
+echo "[$CLOCK] Created $TASK_TYPE task${INDEX}: bench=${BENCH}, io_engine=${ENGINE}, bs=${BS}, io_depth=${IO_DEPTH}, cpus=${CPUS}, number_of_threads=${THREADS}."

@@ -1,0 +1,9 @@
+[global]
+ioengine=libaio
+direct=1
+rw=randread
+size=100G
+time_based=1
+runtime=60s
+cpus_allowed=12
+cpus_allowed_policy=shared

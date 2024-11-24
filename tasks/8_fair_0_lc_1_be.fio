@@ -2,9 +2,9 @@
 ioengine=libaio
 direct=1
 rw=randread
-size=10G
+size=100G
 time_based=1
-runtime=10s
+runtime=60s
 cpus_allowed=12
 cpus_allowed_policy=shared
 [BE0_randread_libaio_64k_32_1]
