@@ -1,0 +1,15 @@
+[global]
+ioengine=libaio
+direct=1
+rw=randread
+size=10G
+time_based=1
+runtime=3600s
+cpus_allowed=12
+cpus_allowed_policy=shared
+[11_fair_0_lc_1_be_BE0]
+filename=/mnt/nvme/11_fair_0_lc_1_be_BE0
+bs=64k
+iodepth=32
+numjobs=1
+nice=-10
